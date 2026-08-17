@@ -1,12 +1,12 @@
 import { useParams } from "react-router-dom";
-import Navbar from "../components/Navbar";
+import NavBar from "../components/NavBar";
 
 function DestinationDetails() {
   const { id } = useParams();
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar />
+      <NavBar />
 
       <main className="px-6 py-12">
         <div className="mx-auto max-w-5xl">

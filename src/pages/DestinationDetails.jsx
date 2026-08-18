@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import Navbar from "../components/Navbar";
+import NavBar from "../components/NavBar";
 
 const DestinationDetails = () => {
   // Get the destination ID from the URL
@@ -11,7 +11,7 @@ const DestinationDetails = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar />
+      <NavBar />
 
       <main className="px-6 py-12">
         <div className="mx-auto max-w-5xl">

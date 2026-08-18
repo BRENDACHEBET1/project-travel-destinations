@@ -1,10 +1,15 @@
 import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import NavBar from "../components/NavBar";
 import SearchBar from "../components/SearchBar";
 import DestinationCard from "../components/DestinationCard";
 
 function Destinations() {
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchParams] = useSearchParams();
+
+  const initialSearch = searchParams.get("search") || "";
+
+  const [searchTerm, setSearchTerm] = useState(initialSearch);
 
   const countries = [
     {
@@ -30,7 +35,6 @@ function Destinations() {
     },
   ];
 
-  // Filter countries based on the search term
   const filteredCountries = countries.filter((country) =>
     country.name.toLowerCase().includes(searchTerm.toLowerCase())
   );

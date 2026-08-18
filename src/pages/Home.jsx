@@ -1,11 +1,22 @@
-import React from 'react'
-import NavBar from '../components/NavBar'
-import SearchBar from '../components/SearchBar'
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import NavBar from "../components/NavBar";
+import SearchBar from "../components/SearchBar";
 
 const Home = () => {
+  const [searchTerm, setSearchTerm] = useState("");
+  const navigate = useNavigate();
+
+  const handleSearch = () => {
+    if (searchTerm.trim() !== "") {
+      navigate(`/destinations?search=${searchTerm}`);
+    } else {
+      navigate("/destinations");
+    }
+  };
+
   return (
-    <div>
-        <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50">
       <NavBar />
 
       <main>
@@ -20,15 +31,24 @@ const Home = () => {
               around the world.
             </p>
 
-            <div className="mx-auto mt-8 max-w-2xl">
-              <SearchBar />
+            <div className="mx-auto mt-8 flex max-w-2xl gap-3">
+              <SearchBar
+                searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm}
+              />
+
+              <button
+                onClick={handleSearch}
+                className="rounded-lg bg-white px-6 py-3 font-semibold text-blue-600 hover:bg-blue-50"
+              >
+                Search
+              </button>
             </div>
           </div>
         </section>
       </main>
     </div>
-    </div>
-  )
-}
+  );
+};
 
-export default Home
+export default Home;

@@ -3,7 +3,7 @@ import SearchBar from "../components/SearchBar";
 import DestinationCard from "../components/DestinationCard";
 
 function Destinations() {
-  const destinations = [
+  const countries = [
     {
       id: "kenya",
       name: "Kenya",
@@ -33,15 +33,16 @@ function Destinations() {
 
       <main className="px-6 py-12">
         <div className="mx-auto max-w-7xl">
+
           {/* Header */}
           <div className="text-center">
             <h1 className="text-4xl font-bold text-gray-900 sm:text-5xl">
-              Explore Destinations
+              Explore Countries
             </h1>
 
             <p className="mx-auto mt-4 max-w-2xl text-lg text-gray-600">
-              Discover countries around the world and learn more about their
-              cultures, regions, and people.
+              Choose a country and discover amazing tourist destinations,
+              cultures, and places to visit.
             </p>
           </div>
 
@@ -50,19 +51,18 @@ function Destinations() {
             <SearchBar />
           </div>
 
-         
-
-          {/* Destination cards */}
+          {/* Country cards */}
           <section className="mt-10">
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {destinations.map((destination) => (
+              {countries.map((country) => (
                 <DestinationCard
-                  key={destination.id}
-                  destination={destination}
+                  key={country.id}
+                  destination={country}
                 />
               ))}
             </div>
           </section>
+
         </div>
       </main>
     </div>

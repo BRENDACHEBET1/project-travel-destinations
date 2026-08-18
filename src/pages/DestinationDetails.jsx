@@ -1,5 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import NavBar from "../components/NavBar";
+import { getTouristDestinations } from "../services/WikiMediaApi";
 
 const DestinationDetails = () => {
   // Get the country from the URL

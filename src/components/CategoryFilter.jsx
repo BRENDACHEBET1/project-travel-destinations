@@ -1,58 +1,30 @@
-import { Link } from "react-router-dom";
+const CategoryFilter = () => {
 
-function DestinationCard({ destination }) {
-
-  // The destination object comes from Destinations.jsx
-  // Example:
-  // {
-  //   id: "kenya",
-  //   name: "Kenya",
-  //   region: "Africa",
-  //   capital: "Nairobi",
-  //   image: "..."
-  // }
+  // Available regions
+  const categories = [
+    "All",
+    "Africa",
+    "Asia",
+    "Europe",
+    "Americas",
+    "Oceania",
+  ];
 
   return (
-    // Card container
-    <div className="overflow-hidden rounded-xl bg-white shadow-md transition hover:-translate-y-1 hover:shadow-lg">
+    <div className="flex flex-wrap justify-center gap-3">
 
-      {/* Destination image */}
-      <img
-        src={destination.image}
-        alt={destination.name}
-        className="h-48 w-full object-cover"
-      />
-
-      {/* Card content */}
-      <div className="p-5">
-
-        {/* Destination name */}
-        <h2 className="text-xl font-bold text-gray-900">
-          {destination.name}
-        </h2>
-
-        {/* Region */}
-        <p className="mt-2 text-gray-600">
-          {destination.region}
-        </p>
-
-        {/* Capital */}
-        <p className="mt-1 text-sm text-gray-500">
-          Capital: {destination.capital}
-        </p>
-
-        {/* Link to the destination details page */}
-        {/* Example: /destinations/kenya */}
-        <Link
-          to={`/destinations/${destination.id}`}
-          className="mt-5 inline-block rounded-lg bg-blue-600 px-4 py-2 font-medium text-white transition hover:bg-blue-700"
+      {/* Create a button for each category */}
+      {categories.map((category) => (
+        <button
+          key={category}
+          className="rounded-full border border-gray-300 bg-white px-5 py-2 text-sm font-medium text-gray-700 transition hover:border-blue-600 hover:bg-blue-600 hover:text-white"
         >
-          View Details
-        </Link>
+          {category}
+        </button>
+      ))}
 
-      </div>
     </div>
   );
-}
+};
 
-export default DestinationCard;
+export default CategoryFilter;

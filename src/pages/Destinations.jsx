@@ -31,8 +31,7 @@ function Destinations() {
   useEffect(() => {
     getCountries()
       .then((data) => {
-  console.log("Countries from API:", data);
-
+  
   setCountries(data);
   setLoading(false);
 })
@@ -51,9 +50,7 @@ function Destinations() {
     ?.toLowerCase()
     .includes(searchTerm.toLowerCase())
 );
-console.log("Search term:", searchTerm);
-console.log("Countries:", countries.length);
-console.log("Filtered countries:", filteredCountries.length);
+
 
   return (
     <div className="min-h-screen bg-gray-50">

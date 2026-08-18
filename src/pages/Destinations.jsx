@@ -6,7 +6,7 @@ import SearchBar from "../components/SearchBar";
 import DestinationCard from "../components/DestinationCard";
 
 // Import the function that gets countries from our API service
-import { getCountries } from "../services/countriesApi";
+import { getCountries } from "../services/CountriesApi";
 
 function Destinations() {
   // Get the search value from the URL
@@ -31,12 +31,11 @@ function Destinations() {
   useEffect(() => {
     getCountries()
       .then((data) => {
-        // Save the countries in state
-        setCountries(data);
+  console.log("Countries from API:", data);
 
-        // Loading is finished
-        setLoading(false);
-      })
+  setCountries(data);
+  setLoading(false);
+})
       .catch((error) => {
         // Save the error message
         setError(error.message);
@@ -48,10 +47,13 @@ function Destinations() {
 
   // Filter countries based on the search term
   const filteredCountries = countries.filter((country) =>
-    country.name.common
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase())
-  );
+  country.names?.common
+    ?.toLowerCase()
+    .includes(searchTerm.toLowerCase())
+);
+console.log("Search term:", searchTerm);
+console.log("Countries:", countries.length);
+console.log("Filtered countries:", filteredCountries.length);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -105,7 +107,7 @@ function Destinations() {
                   {/* Create a card for every matching country */}
                   {filteredCountries.map((country) => (
                     <DestinationCard
-                      key={country.cca3}
+                      key={country.codes.alpha_3 || country.uuid}
                       destination={country}
                     />
                   ))}

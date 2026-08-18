@@ -1,8 +1,11 @@
+import { useState } from "react";
 import NavBar from "../components/NavBar";
 import SearchBar from "../components/SearchBar";
 import DestinationCard from "../components/DestinationCard";
 
 function Destinations() {
+  const [searchTerm, setSearchTerm] = useState("");
+
   const countries = [
     {
       id: "kenya",
@@ -27,6 +30,11 @@ function Destinations() {
     },
   ];
 
+  // Filter countries based on the search term
+  const filteredCountries = countries.filter((country) =>
+    country.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div className="min-h-screen bg-gray-50">
       <NavBar />
@@ -48,19 +56,34 @@ function Destinations() {
 
           {/* Search */}
           <div className="mx-auto mt-10 max-w-2xl">
-            <SearchBar />
+            <SearchBar
+              searchTerm={searchTerm}
+              setSearchTerm={setSearchTerm}
+            />
           </div>
 
           {/* Country cards */}
           <section className="mt-10">
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {countries.map((country) => (
-                <DestinationCard
-                  key={country.id}
-                  destination={country}
-                />
-              ))}
-            </div>
+            {filteredCountries.length > 0 ? (
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {filteredCountries.map((country) => (
+                  <DestinationCard
+                    key={country.id}
+                    destination={country}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="py-12 text-center">
+                <h2 className="text-2xl font-semibold text-gray-900">
+                  No countries found
+                </h2>
+
+                <p className="mt-2 text-gray-600">
+                  Try searching for another country.
+                </p>
+              </div>
+            )}
           </section>
 
         </div>

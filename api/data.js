@@ -6,6 +6,7 @@ export default async function handler(req, res) {
 
   try {
     if (resource === "countries") return await handleCountries(res);
+    if (resource === "country") return await handleCountry(req, res);
     if (resource === "sights") return await handleSights(req, res);
     return res.status(400).json({ error: "Unknown resource" });
   } catch {
@@ -37,6 +38,18 @@ async function handleCountries(res) {
   return res.status(200).json({
     data: { objects: pages.flatMap((page) => page.data?.objects || []) },
   });
+}
+
+async function handleCountry(req, res) {
+  const { code } = req.query;
+  if (!code) return res.status(400).json({ error: "Country code is required" });
+
+  const response = await fetch(
+    `https://api.restcountries.com/countries/v5/codes.alpha_3/${encodeURIComponent(code)}?response_fields=names,region,capitals,codes,flag,coordinates`,
+    { headers: countriesHeaders() },
+  );
+  const data = await response.json();
+  return res.status(response.status).json(data);
 }
 
 async function handleSights(req, res) {

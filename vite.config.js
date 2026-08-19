@@ -22,6 +22,20 @@ export default defineConfig(({ mode }) => {
             });
           },
         },
+        "/api/country": {
+          target: "https://api.restcountries.com",
+          changeOrigin: true,
+          rewrite: (path) =>
+            path.replace(/^\/api\/country/, "/countries/v5/codes.alpha_3"),
+          configure: (proxy) => {
+            proxy.on("proxyReq", (proxyRequest) => {
+              proxyRequest.setHeader(
+                "Authorization",
+                `Bearer ${env.VITE_COUNTRIES_API_KEY}`,
+              );
+            });
+          },
+        },
       },
     },
   };

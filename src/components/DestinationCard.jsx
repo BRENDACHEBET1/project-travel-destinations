@@ -14,7 +14,6 @@ function DestinationCard({ destination }) {
       : "Unknown";
 
   // Get the capital
-  // Some API responses may store the capital as an object
   const capitalData = destination.capitals?.[0];
 
   let capital = "No capital available";
@@ -64,7 +63,7 @@ function DestinationCard({ destination }) {
         {/* Explore button */}
         <Link
           to={`/destinations/${countryCode}`}
-          className="mt-5 inline-block rounded-lg bg-blue-600 px-5 py-2.5 font-medium text-white transition hover:bg-blue-700"
+          className="mt-5 inline-block rounded-lg bg-blue-900 px-5 py-2.5 font-medium text-white transition hover:bg-blue-700"
         >
           Explore {countryName}
         </Link>

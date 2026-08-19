@@ -37,12 +37,9 @@ const Home = () => {
       <main>
         <section className="relative flex min-h-[80vh] items-center justify-center overflow-hidden px-6 text-center text-white">
           {slides.map((slide, index) => (
-            <img
-              key={slide.src}
-              src={slide.src}
-              alt={slide.alt}
+            <img key={slide.src} src={slide.src} alt={slide.alt}
               className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${
-                index === activeSlide ? "opacity-100" : "opacity-0"
+              index === activeSlide ? "opacity-100" : "opacity-0"
               }`}
             />
           ))}

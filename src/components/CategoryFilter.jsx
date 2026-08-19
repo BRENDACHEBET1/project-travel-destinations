@@ -1,4 +1,4 @@
-const CategoryFilter = () => {
+const CategoryFilter = ({ activeCategory, setActiveCategory }) => {
 
   // Available regions
   const categories = [
@@ -17,7 +17,14 @@ const CategoryFilter = () => {
       {categories.map((category) => (
         <button
           key={category}
-          className="rounded-full border border-gray-300 bg-white px-5 py-2 text-sm font-medium text-gray-700 transition hover:border-blue-600 hover:bg-blue-600 hover:text-white"
+          type="button"
+          onClick={() => setActiveCategory(category)}
+          aria-pressed={activeCategory === category}
+          className={`rounded-full border px-5 py-2 text-sm font-medium transition ${
+            activeCategory === category
+              ? "border-blue-600 bg-blue-600 text-white"
+              : "border-gray-300 bg-white text-gray-700 hover:border-blue-600 hover:bg-blue-600 hover:text-white"
+          }`}
         >
           {category}
         </button>

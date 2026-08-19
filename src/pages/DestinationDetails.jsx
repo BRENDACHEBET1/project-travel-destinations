@@ -1,61 +1,37 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-
 import NavBar from "../components/NavBar";
-import { getCountries } from "../services/CountriesApi";
-import { getTouristDestinations } from "../services/GeoapifyApi";
+import { getCountries, getTouristDestinations } from "../api/countries";
 
 function DestinationDetails() {
   const { country } = useParams();
   const navigate = useNavigate();
 
   const [selectedCountry, setSelectedCountry] = useState(null);
-  const [destinations, setDestinations] = useState([]);
+  const [places, setPlaces] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
     async function loadData() {
+      setLoading(true);
+      setError("");
+
       try {
         const countries = await getCountries();
-
-        const foundCountry = countries.find(
-          (item) =>
-            item.codes?.alpha_3?.toLowerCase() ===
-            country?.toLowerCase()
+        const found = countries.find(
+          (item) => item.codes?.alpha_3?.toLowerCase() === country?.toLowerCase()
         );
 
-        if (!foundCountry) {
-          throw new Error("Country not found");
-        }
+        if (!found) throw new Error("Country not found");
+        setSelectedCountry(found);
 
-        setSelectedCountry(foundCountry);
-
-        // Country coordinates
-        const lat = foundCountry.coordinates?.lat;
-        const lon = foundCountry.coordinates?.lng;
-
-        /*
-          We create a large search area around the country.
-
-          This works for countries where the API provides
-          the country's centre coordinates.
-        */
-        const minLon = lon - 10;
-        const minLat = lat - 10;
-        const maxLon = lon + 10;
-        const maxLat = lat + 10;
-
-        const places = await getTouristDestinations(
-          minLon,
-          minLat,
-          maxLon,
-          maxLat
-        );
-
-        setDestinations(places);
+        // Search a 10-degree box around the country's centre point
+        const lat = found.coordinates?.lat;
+        const lon = found.coordinates?.lng;
+        const nearbyPlaces = await getTouristDestinations(lon - 10, lat - 10, lon + 10, lat + 10);
+        setPlaces(nearbyPlaces);
       } catch (err) {
-        console.error(err);
         setError(err.message);
       } finally {
         setLoading(false);
@@ -67,178 +43,79 @@ function DestinationDetails() {
 
   if (loading) {
     return (
-      <>
+      <div>
         <NavBar />
-        <main className="p-10 text-center">
-          <p>Loading...</p>
-        </main>
-      </>
+        <div className="py-16 text-center">
+          <div className="mx-auto h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-blue-600" />
+          <p className="mt-3 text-gray-600">Loading destination...</p>
+        </div>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <>
+      <div>
         <NavBar />
-        <main className="p-10 text-center">
-          <p className="text-red-600">{error}</p>
-
-          <button
-            onClick={() => navigate(-1)}
-            className="mt-4 rounded bg-blue-600 px-4 py-2 text-white"
-          >
+        <div className="p-10">
+          <div className="mx-auto max-w-md rounded-lg border border-red-200 bg-red-50 p-6 text-center">
+            <h2 className="font-semibold text-red-700">Oops!</h2>
+            <p className="mt-2 text-red-600">{error}</p>
+          </div>
+          <button onClick={() => navigate(-1)} className="mx-auto mt-4 block text-blue-600">
             ← Back
           </button>
-        </main>
-      </>
+        </div>
+      </div>
     );
   }
 
-  if (!selectedCountry) {
-    return null;
-  }
-
-  const countryName =
-    selectedCountry.names?.common || "Unknown";
-
-  const region =
-    selectedCountry.region || "Unknown";
-
-  const capital =
-    selectedCountry.capitals?.[0]?.name ||
-    selectedCountry.capitals?.[0] ||
-    "No capital";
-
-  const population =
-    selectedCountry.population?.toLocaleString() ||
-    "Unknown";
+  const name = selectedCountry.names?.common || "Unknown";
+  const region = selectedCountry.region || "Unknown";
+  const capital = selectedCountry.capitals?.[0]?.name || selectedCountry.capitals?.[0] || "No capital";
 
   return (
     <div className="min-h-screen bg-gray-50">
       <NavBar />
 
-      <main className="px-6 py-12">
-        <div className="mx-auto max-w-6xl">
+      <main className="mx-auto max-w-5xl px-6 py-12">
+        <button onClick={() => navigate(-1)} className="mb-6 text-blue-600">
+          ← Back to countries
+        </button>
 
-          <button
-            onClick={() => navigate(-1)}
-            className="mb-6 text-blue-600"
-          >
-            ← Back to countries
-          </button>
+        <div className="rounded-xl bg-white p-8 shadow">
+          <h1 className="text-4xl font-bold">{name}</h1>
 
-          <div className="rounded-xl bg-white p-8 shadow">
-
-            <h1 className="text-4xl font-bold">
-              {countryName}
-            </h1>
-
-            <p className="mt-2 text-gray-600">
-              Discover popular tourist attractions and
-              places to visit.
-            </p>
-
-            {/* Country information */}
-            <div className="mt-8 grid gap-4 sm:grid-cols-3">
-
-              <div className="rounded-lg bg-gray-100 p-4">
-                <p className="text-sm text-gray-500">
-                  Region
-                </p>
-                <p className="font-semibold">
-                  {region}
-                </p>
-              </div>
-
-              <div className="rounded-lg bg-gray-100 p-4">
-                <p className="text-sm text-gray-500">
-                  Capital
-                </p>
-                <p className="font-semibold">
-                  {capital}
-                </p>
-              </div>
-
-              <div className="rounded-lg bg-gray-100 p-4">
-                <p className="text-sm text-gray-500">
-                  Population
-                </p>
-                <p className="font-semibold">
-                  {population}
-                </p>
-              </div>
-
+          <div className="mt-6 grid gap-4 sm:grid-cols-2">
+            <div className="rounded-lg bg-gray-100 p-4">
+              <p className="text-sm text-gray-500">Region</p>
+              <p className="font-semibold">{region}</p>
             </div>
-
-            {/* Tourist destinations */}
-            <section className="mt-12">
-
-              <h2 className="text-2xl font-bold">
-                Tourist Destinations
-              </h2>
-
-              <p className="mt-2 text-gray-600">
-                Explore popular attractions in {countryName}.
-              </p>
-
-              {destinations.length > 0 ? (
-
-                <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-
-                  {destinations.map((destination, index) => {
-
-                    const properties =
-                      destination.properties || {};
-
-                    const name =
-                      properties.name ||
-                      "Unnamed tourist attraction";
-
-                    const address =
-                      properties.formatted ||
-                      "Location unavailable";
-
-                    const category =
-                      properties.categories?.[0] ||
-                      "Tourist attraction";
-
-                    return (
-                      <div
-                        key={
-                          properties.place_id || index
-                        }
-                        className="rounded-xl bg-gray-50 p-6 shadow-sm"
-                      >
-
-                        <h3 className="text-xl font-bold">
-                          {name}
-                        </h3>
-
-                        <p className="mt-2 text-sm text-blue-600">
-                          {category}
-                        </p>
-
-                        <p className="mt-3 text-sm text-gray-600">
-                          {address}
-                        </p>
-
-                      </div>
-                    );
-                  })}
-
-                </div>
-
-              ) : (
-
-                <p className="mt-6 text-gray-600">
-                  No tourist destinations found.
-                </p>
-
-              )}
-
-            </section>
-
+            <div className="rounded-lg bg-gray-100 p-4">
+              <p className="text-sm text-gray-500">Capital</p>
+              <p className="font-semibold">{capital}</p>
+            </div>
           </div>
+
+          <h2 className="mt-10 text-2xl font-bold">Tourist Destinations</h2>
+
+          {places.length === 0 && <p className="mt-4 text-gray-600">No tourist destinations found.</p>}
+
+          {places.length > 0 && (
+            <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {places.map((place, index) => (
+                <div key={place.properties?.place_id || index} className="rounded-lg bg-gray-50 p-5">
+                  <h3 className="font-bold">{place.properties?.name || "Unnamed"}</h3>
+                  <p className="mt-1 text-sm text-blue-600">
+                    {place.properties?.categories?.[0] || "Tourist attraction"}
+                  </p>
+                  <p className="mt-2 text-sm text-gray-600">
+                    {place.properties?.formatted || "Location unavailable"}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </main>
     </div>

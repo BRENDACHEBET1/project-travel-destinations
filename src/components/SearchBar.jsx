@@ -1,5 +1,3 @@
-import { useState } from "react";
-
 function SearchBar({ searchTerm, setSearchTerm }) {
   return (
     <div className="w-full">

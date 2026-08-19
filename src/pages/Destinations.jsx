@@ -31,6 +31,9 @@ function Destinations() {
   useEffect(() => {
     getCountries()
       .then((data) => {
+
+    
+
   
   setCountries(data);
   setLoading(false);
@@ -50,7 +53,6 @@ function Destinations() {
     ?.toLowerCase()
     .includes(searchTerm.toLowerCase())
 );
-
 
   return (
     <div className="min-h-screen bg-gray-50">

@@ -22,8 +22,8 @@ const CategoryFilter = ({ activeCategory, setActiveCategory }) => {
           aria-pressed={activeCategory === category}
           className={`rounded-full border px-5 py-2 text-sm font-medium transition ${
             activeCategory === category
-              ? "border-blue-600 bg-blue-600 text-white"
-              : "border-gray-300 bg-white text-gray-700 hover:border-blue-600 hover:bg-blue-600 hover:text-white"
+              ? "border-blue-600 bg-blue-950 text-white"
+              : "border-gray-300 bg-white text-gray-700 hover:border-blue-900 hover:bg-blue-950 hover:text-white"
           }`}
         >
           {category}

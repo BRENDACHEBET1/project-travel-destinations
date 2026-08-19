@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import NavBar from "../components/NavBar";
-import { getCountries, getTouristDestinations } from "../api/countries";
+import { getCountry, getTouristDestinations } from "../api/countries";
 
 function DestinationDetails() {
   const { country } = useParams();
@@ -18,10 +18,7 @@ function DestinationDetails() {
       setError("");
 
       try {
-        const countries = await getCountries();
-        const found = countries.find(
-          (item) => item.codes?.alpha_3?.toLowerCase() === country?.toLowerCase()
-        );
+        const found = await getCountry(country);
 
         if (!found) throw new Error("Country not found");
         setSelectedCountry(found);
@@ -29,7 +26,13 @@ function DestinationDetails() {
         // Search a 10-degree box around the country's centre point
         const lat = found.coordinates?.lat;
         const lon = found.coordinates?.lng;
-        const nearbyPlaces = await getTouristDestinations(lon - 10, lat - 10, lon + 10, lat + 10);
+        const nearbyPlaces = await getTouristDestinations(
+          lon - 10,
+          lat - 10,
+          lon + 10,
+          lat + 10,
+          found.names?.common,
+        );
         setPlaces(nearbyPlaces);
       } catch (err) {
         setError(err.message);
@@ -104,14 +107,27 @@ function DestinationDetails() {
           {places.length > 0 && (
             <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {places.map((place, index) => (
-                <div key={place.properties?.place_id || index} className="rounded-lg bg-gray-50 p-5">
-                  <h3 className="font-bold">{place.properties?.name || "Unnamed"}</h3>
-                  <p className="mt-1 text-sm text-blue-600">
-                    {place.properties?.categories?.[0] || "Tourist attraction"}
-                  </p>
-                  <p className="mt-2 text-sm text-gray-600">
-                    {place.properties?.formatted || "Location unavailable"}
-                  </p>
+                <div key={`${place.properties?.place_id || place.properties?.name || "place"}-${index}`} className="overflow-hidden rounded-lg bg-gray-50">
+                  {place.properties?.image ? (
+                    <img
+                      src={place.properties.image}
+                      alt={place.properties?.name || "Tourist destination"}
+                      className="h-44 w-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-44 items-center justify-center bg-slate-200 text-sm text-slate-500">
+                      Image unavailable
+                    </div>
+                  )}
+                  <div className="p-5">
+                    <h3 className="font-bold">{place.properties?.name || "Unnamed"}</h3>
+                    <p className="mt-1 text-sm text-blue-600">
+                      {place.properties?.categories?.[0] || "Tourist attraction"}
+                    </p>
+                    <p className="mt-2 text-sm text-gray-600">
+                      {place.properties?.formatted || "Location unavailable"}
+                    </p>
+                  </div>
                 </div>
               ))}
             </div>

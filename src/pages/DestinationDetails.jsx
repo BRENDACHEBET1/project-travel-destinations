@@ -1,76 +1,117 @@
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+
 import NavBar from "../components/NavBar";
+import { getCountries } from "../services/CountriesApi";
+import { getTouristDestinations } from "../services/GeoapifyApi";
 
-const DestinationDetails = () => {
-  // Get the country from the URL
-  // Example: /destinations/kenya → country = "kenya"
+function DestinationDetails() {
   const { country } = useParams();
-
-  // Allows us to navigate to another page
   const navigate = useNavigate();
 
-  // Tourist destinations for each country
-  const touristDestinations = {
-    kenya: [
-      {
-        name: "Maasai Mara",
-        type: "National Reserve",
-        description:
-          "Famous for wildlife, beautiful landscapes, and the Great Migration.",
-      },
-      {
-        name: "Amboseli National Park",
-        type: "National Park",
-        description:
-          "Known for its large elephant population and views of Mount Kilimanjaro.",
-      },
-      {
-        name: "Diani Beach",
-        type: "Beach",
-        description:
-          "A beautiful coastal destination known for its white sandy beaches and clear water.",
-      },
-      {
-        name: "Nairobi National Park",
-        type: "National Park",
-        description:
-          "A unique wildlife park located just outside Kenya's capital city.",
-      },
-    ],
+  const [selectedCountry, setSelectedCountry] = useState(null);
+  const [destinations, setDestinations] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-    japan: [
-      {
-        name: "Mount Fuji",
-        type: "Mountain",
-        description:
-          "One of Japan's most famous natural landmarks and a popular destination for visitors.",
-      },
-      {
-        name: "Tokyo",
-        type: "City",
-        description:
-          "Japan's capital city, known for its modern technology, culture, food, and entertainment.",
-      },
-    ],
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const countries = await getCountries();
 
-    france: [
-      {
-        name: "Eiffel Tower",
-        type: "Landmark",
-        description:
-          "One of the world's most recognizable landmarks and a symbol of Paris.",
-      },
-      {
-        name: "Louvre Museum",
-        type: "Museum",
-        description:
-          "One of the world's most famous museums, home to thousands of works of art.",
-      },
-    ],
-  };
+        const foundCountry = countries.find(
+          (item) =>
+            item.codes?.alpha_3?.toLowerCase() ===
+            country?.toLowerCase()
+        );
 
-  // Get destinations for the selected country
-  const destinations = touristDestinations[country] || [];
+        if (!foundCountry) {
+          throw new Error("Country not found");
+        }
+
+        setSelectedCountry(foundCountry);
+
+        // Country coordinates
+        const lat = foundCountry.coordinates?.lat;
+        const lon = foundCountry.coordinates?.lng;
+
+        /*
+          We create a large search area around the country.
+
+          This works for countries where the API provides
+          the country's centre coordinates.
+        */
+        const minLon = lon - 10;
+        const minLat = lat - 10;
+        const maxLon = lon + 10;
+        const maxLat = lat + 10;
+
+        const places = await getTouristDestinations(
+          minLon,
+          minLat,
+          maxLon,
+          maxLat
+        );
+
+        setDestinations(places);
+      } catch (err) {
+        console.error(err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadData();
+  }, [country]);
+
+  if (loading) {
+    return (
+      <>
+        <NavBar />
+        <main className="p-10 text-center">
+          <p>Loading...</p>
+        </main>
+      </>
+    );
+  }
+
+  if (error) {
+    return (
+      <>
+        <NavBar />
+        <main className="p-10 text-center">
+          <p className="text-red-600">{error}</p>
+
+          <button
+            onClick={() => navigate(-1)}
+            className="mt-4 rounded bg-blue-600 px-4 py-2 text-white"
+          >
+            ← Back
+          </button>
+        </main>
+      </>
+    );
+  }
+
+  if (!selectedCountry) {
+    return null;
+  }
+
+  const countryName =
+    selectedCountry.names?.common || "Unknown";
+
+  const region =
+    selectedCountry.region || "Unknown";
+
+  const capital =
+    selectedCountry.capitals?.[0]?.name ||
+    selectedCountry.capitals?.[0] ||
+    "No capital";
+
+  const population =
+    selectedCountry.population?.toLocaleString() ||
+    "Unknown";
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -79,157 +120,129 @@ const DestinationDetails = () => {
       <main className="px-6 py-12">
         <div className="mx-auto max-w-6xl">
 
-          {/* Back button */}
           <button
             onClick={() => navigate(-1)}
-            className="mb-8 font-medium text-blue-600 hover:text-blue-800"
+            className="mb-6 text-blue-600"
           >
             ← Back to countries
           </button>
 
-          {/* Country information */}
-          <section className="overflow-hidden rounded-2xl bg-white shadow-md">
+          <div className="rounded-xl bg-white p-8 shadow">
 
-            {/* Header */}
-            <div className="bg-gradient-to-r from-blue-600 to-indigo-700 px-6 py-12 text-white sm:px-10">
-              <p className="text-sm font-semibold uppercase tracking-wide text-blue-100">
-                Country
-              </p>
+            <h1 className="text-4xl font-bold">
+              {countryName}
+            </h1>
 
-              <h1 className="mt-2 text-4xl font-bold capitalize sm:text-5xl">
-                {country}
-              </h1>
-
-              <p className="mt-4 max-w-2xl text-lg text-blue-100">
-                Explore tourist destinations and discover amazing places to
-                visit in {country}.
-              </p>
-            </div>
+            <p className="mt-2 text-gray-600">
+              Discover popular tourist attractions and
+              places to visit.
+            </p>
 
             {/* Country information */}
-            <div className="p-6 sm:p-10">
+            <div className="mt-8 grid gap-4 sm:grid-cols-3">
 
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-
-                {/* Region */}
-                <div className="rounded-lg bg-gray-50 p-5">
-                  <h2 className="text-sm font-medium text-gray-500">
-                    Region
-                  </h2>
-
-                  <p className="mt-2 font-semibold capitalize text-gray-900">
-                    {country === "kenya"
-                      ? "Africa"
-                      : country === "japan"
-                      ? "Asia"
-                      : country === "france"
-                      ? "Europe"
-                      : "Unknown"}
-                  </p>
-                </div>
-
-                {/* Capital */}
-                <div className="rounded-lg bg-gray-50 p-5">
-                  <h2 className="text-sm font-medium text-gray-500">
-                    Capital
-                  </h2>
-
-                  <p className="mt-2 font-semibold text-gray-900">
-                    {country === "kenya"
-                      ? "Nairobi"
-                      : country === "japan"
-                      ? "Tokyo"
-                      : country === "france"
-                      ? "Paris"
-                      : "Unknown"}
-                  </p>
-                </div>
-
-                {/* Population */}
-                <div className="rounded-lg bg-gray-50 p-5">
-                  <h2 className="text-sm font-medium text-gray-500">
-                    Population
-                  </h2>
-
-                  <p className="mt-2 font-semibold text-gray-900">
-                    {country === "kenya"
-                      ? "55 Million"
-                      : country === "japan"
-                      ? "124 Million"
-                      : country === "france"
-                      ? "68 Million"
-                      : "Unknown"}
-                  </p>
-                </div>
-
-                {/* Currency */}
-                <div className="rounded-lg bg-gray-50 p-5">
-                  <h2 className="text-sm font-medium text-gray-500">
-                    Currency
-                  </h2>
-
-                  <p className="mt-2 font-semibold text-gray-900">
-                    {country === "kenya"
-                      ? "Kenyan Shilling"
-                      : country === "japan"
-                      ? "Japanese Yen"
-                      : country === "france"
-                      ? "Euro"
-                      : "Unknown"}
-                  </p>
-                </div>
-
+              <div className="rounded-lg bg-gray-100 p-4">
+                <p className="text-sm text-gray-500">
+                  Region
+                </p>
+                <p className="font-semibold">
+                  {region}
+                </p>
               </div>
 
-              {/* Tourist destinations */}
-              <section className="mt-12">
-
-                <h2 className="text-3xl font-bold text-gray-900">
-                  Tourist Destinations in{" "}
-                  <span className="capitalize">{country}</span>
-                </h2>
-
-                <p className="mt-2 text-gray-600">
-                  Explore popular places and attractions in this country.
+              <div className="rounded-lg bg-gray-100 p-4">
+                <p className="text-sm text-gray-500">
+                  Capital
                 </p>
+                <p className="font-semibold">
+                  {capital}
+                </p>
+              </div>
 
-                {destinations.length > 0 ? (
-                  <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-
-                    {destinations.map((destination) => (
-                      <div
-                        key={destination.name}
-                        className="rounded-xl bg-gray-50 p-6 shadow-sm transition hover:shadow-md"
-                      >
-                        <h3 className="text-xl font-bold text-gray-900">
-                          {destination.name}
-                        </h3>
-
-                        <p className="mt-2 text-sm font-medium text-blue-600">
-                          {destination.type}
-                        </p>
-
-                        <p className="mt-3 leading-7 text-gray-600">
-                          {destination.description}
-                        </p>
-                      </div>
-                    ))}
-
-                  </div>
-                ) : (
-                  <p className="mt-6 rounded-lg bg-gray-50 p-6 text-gray-600">
-                    No tourist destinations found for this country.
-                  </p>
-                )}
-
-              </section>
+              <div className="rounded-lg bg-gray-100 p-4">
+                <p className="text-sm text-gray-500">
+                  Population
+                </p>
+                <p className="font-semibold">
+                  {population}
+                </p>
+              </div>
 
             </div>
-          </section>
+
+            {/* Tourist destinations */}
+            <section className="mt-12">
+
+              <h2 className="text-2xl font-bold">
+                Tourist Destinations
+              </h2>
+
+              <p className="mt-2 text-gray-600">
+                Explore popular attractions in {countryName}.
+              </p>
+
+              {destinations.length > 0 ? (
+
+                <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+
+                  {destinations.map((destination, index) => {
+
+                    const properties =
+                      destination.properties || {};
+
+                    const name =
+                      properties.name ||
+                      "Unnamed tourist attraction";
+
+                    const address =
+                      properties.formatted ||
+                      "Location unavailable";
+
+                    const category =
+                      properties.categories?.[0] ||
+                      "Tourist attraction";
+
+                    return (
+                      <div
+                        key={
+                          properties.place_id || index
+                        }
+                        className="rounded-xl bg-gray-50 p-6 shadow-sm"
+                      >
+
+                        <h3 className="text-xl font-bold">
+                          {name}
+                        </h3>
+
+                        <p className="mt-2 text-sm text-blue-600">
+                          {category}
+                        </p>
+
+                        <p className="mt-3 text-sm text-gray-600">
+                          {address}
+                        </p>
+
+                      </div>
+                    );
+                  })}
+
+                </div>
+
+              ) : (
+
+                <p className="mt-6 text-gray-600">
+                  No tourist destinations found.
+                </p>
+
+              )}
+
+            </section>
+
+          </div>
         </div>
       </main>
     </div>
   );
-};
+}
 
 export default DestinationDetails;

@@ -6,6 +6,7 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, "..", "VITE_");
 
   return {
+    envDir: "..",
     plugins: [react(), tailwindcss()],
     server: {
       proxy: {
@@ -35,6 +36,10 @@ export default defineConfig(({ mode }) => {
               );
             });
           },
+        },
+        "/api": {
+          target: env.VITE_API_URL || "http://localhost:5000",
+          changeOrigin: true,
         },
       },
     },

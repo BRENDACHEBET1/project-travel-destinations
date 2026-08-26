@@ -105,3 +105,78 @@ class Destination(db.Model):
             "longitude": self.longitude
         }
 
+class SavedDestination(db.Model):
+    """
+    Represents a destination saved by a user.
+
+    This is the user-owned resource that will become
+    especially important in Phase 3 when authentication
+    and authorization are added.
+    """
+
+    __tablename__ = "saved_destinations"
+
+    # Primary key
+    id = db.Column(
+        db.Integer,
+        primary_key=True
+    )
+
+    # Foreign key pointing to the user who saved the destination
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey("users.id"),
+        nullable=False
+    )
+
+    # Foreign key pointing to the destination
+    destination_id = db.Column(
+        db.Integer,
+        db.ForeignKey("destinations.id"),
+        nullable=False
+    )
+
+    # Optional personal note.
+    # This gives the user something meaningful to edit.
+    notes = db.Column(
+        db.Text,
+        nullable=True
+    )
+
+    # Relationship back to User
+    user = db.relationship(
+        "User",
+        back_populates="saved_destinations"
+    )
+
+    # Relationship back to Destination
+    destination = db.relationship(
+        "Destination",
+        back_populates="saved_destinations"
+    )
+
+    # Prevent the same user from saving the same destination twice
+    __table_args__ = (
+        db.UniqueConstraint(
+            "user_id",
+            "destination_id",
+            name="unique_user_destination"
+        ),
+    )
+
+    def to_dict(self):
+        """Convert SavedDestination into JSON-friendly data."""
+
+        return {
+            "id": self.id,
+            "user_id": self.user_id,
+            "destination_id": self.destination_id,
+            "notes": self.notes,
+
+            # Include destination information in the response
+            "destination": (
+                self.destination.to_dict()
+                if self.destination
+                else None
+            )
+        }

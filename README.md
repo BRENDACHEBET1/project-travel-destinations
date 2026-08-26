@@ -26,9 +26,10 @@ WorldExplorer is a React travel discovery app. Browse countries, filter by regio
 
 ## Run locally
 
-1. Install dependencies:
+1. Install frontend dependencies:
 
    ```bash
+   cd frontend
    npm install
    ```
 
@@ -39,7 +40,7 @@ WorldExplorer is a React travel discovery app. Browse countries, filter by regio
    VITE_GEOAPIFY_API_KEY=your_geoapify_key
    ```
 
-3. Start the development server:
+3. Start the development server from `frontend/`:
 
    ```bash
    npm run dev
@@ -48,6 +49,7 @@ WorldExplorer is a React travel discovery app. Browse countries, filter by regio
 ## Scripts
 
 ```bash
+cd frontend
 npm run dev      # Start Vite locally
 npm run build    # Create a production build
 npm run preview  # Preview the production build
@@ -57,16 +59,25 @@ npm run lint     # Run ESLint
 ## Project structure
 
 ```text
-src/
-  api/          Frontend functions that request data
-  components/   Reusable React UI components
-  pages/        Home, About, destinations, and detail pages
+frontend/
+  src/
+    api/          Frontend functions that request data
+    components/   Reusable React UI components
+    pages/        Home, About, destinations, and detail pages
+  public/         Images and other public assets
+  package.json    Frontend dependencies and scripts
+  vite.config.js  Vite configuration
 api/
   data.js       Vercel serverless function for production API requests
-public/         Images and other public assets
+server/         Flask backend
 ```
 
 ## Deploy to Vercel
+
+The repository uses `vercel.json` to install and build the React app from
+`frontend/`, while keeping the root-level `api/data.js` serverless endpoint.
+Do not set Vercel's Root Directory to `frontend`, because that would exclude
+the root-level API function from the deployment.
 
 Vercel deploys `api/data.js` as the `/api/data` serverless endpoint. Add these environment variables in **Vercel → Project Settings → Environment Variables** before deploying:
 

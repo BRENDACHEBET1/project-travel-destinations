@@ -4,6 +4,8 @@ from flask_cors import CORS
 from config import Config
 from models import db
 
+from routes.users import users_bp
+
 
 def create_app():
     """
@@ -22,6 +24,9 @@ def create_app():
 
     # Allow requests from the React frontend
     CORS(app)
+
+    # Register API routes
+    app.register_blueprint(users_bp)
 
     @app.route("/")
     def home():

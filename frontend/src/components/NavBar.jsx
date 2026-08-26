@@ -66,6 +66,17 @@ function Navbar() {
           >
             About
           </NavLink>
+
+          <NavLink
+            to="/saved-destinations"
+            className={({ isActive }) =>
+              `font-medium transition ${
+                isActive ? "text-white" : "text-slate-300 hover:text-white"
+              }`
+            }
+          >
+            Saved
+          </NavLink>
         </div>
       </div>
     </nav>

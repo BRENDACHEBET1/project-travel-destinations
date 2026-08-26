@@ -70,6 +70,10 @@ WorldExplorer is a React travel discovery app. Browse countries, filter by regio
    environment variables to the public URL of the deployed Flask API, for
    example `https://your-api.example.com`. Rebuild the frontend after adding it.
 
+The temporary save flow uses the seeded user with ID `1`. Set
+`VITE_DEMO_USER_ID` in `.env` to use another existing user ID. This is a
+development-only placeholder until authentication is added.
+
 ## Scripts
 
 ```bash

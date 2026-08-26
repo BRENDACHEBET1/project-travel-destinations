@@ -37,7 +37,11 @@ export default defineConfig(({ mode }) => {
             });
           },
         },
-        "/api": {
+        "/api/destinations": {
+          target: env.VITE_API_URL || "http://localhost:5000",
+          changeOrigin: true,
+        },
+        "/api/saved-destinations": {
           target: env.VITE_API_URL || "http://localhost:5000",
           changeOrigin: true,
         },

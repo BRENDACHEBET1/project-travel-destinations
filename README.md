@@ -46,6 +46,30 @@ WorldExplorer is a React travel discovery app. Browse countries, filter by regio
    npm run dev
    ```
 
+## Connect the frontend to the Flask API
+
+1. Configure the database connection in the root `.env` file:
+
+   ```env
+   DATABASE_URL=your_postgresql_connection_url
+   ```
+
+2. In a second terminal, start the Flask server:
+
+   ```bash
+   cd server
+   pip install -r requirements.txt
+   python seed.py # optional: add sample destinations
+   python app.py
+   ```
+
+   The API runs on `http://localhost:5000`. The Vite development server proxies
+   `/api/destinations` requests to it automatically.
+
+3. For a deployed frontend, set `VITE_API_URL` in the frontend deployment's
+   environment variables to the public URL of the deployed Flask API, for
+   example `https://your-api.example.com`. Rebuild the frontend after adding it.
+
 ## Scripts
 
 ```bash

@@ -2,6 +2,9 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import NavBar from "../components/NavBar";
 import { getCountry, getTouristDestinations } from "../api/countries";
+import { savePlaceForUser } from "../api/backend";
+
+const DEMO_USER_ID = Number(import.meta.env.VITE_DEMO_USER_ID || 1);
 
 function DestinationDetails() {
   const { country } = useParams();
@@ -11,6 +14,23 @@ function DestinationDetails() {
   const [places, setPlaces] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [savingPlaceId, setSavingPlaceId] = useState("");
+  const [savedPlaceIds, setSavedPlaceIds] = useState([]);
+  const [saveError, setSaveError] = useState("");
+
+  async function savePlace(place, placeId) {
+    setSavingPlaceId(placeId);
+    setSaveError("");
+
+    try {
+      await savePlaceForUser(place, DEMO_USER_ID);
+      setSavedPlaceIds((ids) => [...new Set([...ids, placeId])]);
+    } catch (err) {
+      setSaveError(err.message);
+    } finally {
+      setSavingPlaceId("");
+    }
+  }
 
   useEffect(() => {
     async function loadData() {
@@ -101,13 +121,25 @@ function DestinationDetails() {
           </div>
 
           <h2 className="mt-10 text-2xl font-bold">Tourist Destinations</h2>
+          <p className="mt-2 text-sm text-gray-600">
+            Save places to your temporary traveler profile.
+          </p>
+
+          {saveError && (
+            <p className="mt-3 text-sm text-red-600">Unable to save: {saveError}</p>
+          )}
 
           {places.length === 0 && <p className="mt-4 text-gray-600">No tourist destinations found.</p>}
 
           {places.length > 0 && (
             <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {places.map((place, index) => (
-                <div key={`${place.properties?.place_id || place.properties?.name || "place"}-${index}`} className="overflow-hidden rounded-lg bg-gray-50">
+              {places.map((place, index) => {
+                const placeId = `${place.properties?.place_id || place.properties?.name || "place"}-${index}`;
+                const isSaving = savingPlaceId === placeId;
+                const isSaved = savedPlaceIds.includes(placeId);
+
+                return (
+                <div key={placeId} className="overflow-hidden rounded-lg bg-gray-50">
                   {place.properties?.image ? (
                     <img
                       src={place.properties.image}
@@ -127,9 +159,18 @@ function DestinationDetails() {
                     <p className="mt-2 text-sm text-gray-600">
                       {place.properties?.formatted || "Location unavailable"}
                     </p>
+                    <button
+                      type="button"
+                      onClick={() => savePlace(place, placeId)}
+                      disabled={isSaving || isSaved}
+                      className="mt-4 rounded bg-blue-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-400"
+                    >
+                      {isSaved ? "Saved" : isSaving ? "Saving..." : "Save destination"}
+                    </button>
                   </div>
                 </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

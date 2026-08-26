@@ -7,7 +7,16 @@ const WIKIMEDIA_COMMONS_ENDPOINT = "https://commons.wikimedia.org/w/api.php";
 
 async function readJson(response, resource) {
   if (!response.ok) {
-    throw new Error(`Unable to load ${resource}`);
+    const body = await response.json().catch(() => ({}));
+    const details =
+      typeof body?.error === "string"
+        ? body.error
+        : typeof body?.message === "string"
+          ? body.message
+          : "";
+    throw new Error(
+      details ? `Unable to load ${resource}: ${details}` : `Unable to load ${resource}`,
+    );
   }
 
   const contentType = response.headers.get("content-type") || "";

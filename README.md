@@ -74,6 +74,11 @@ server/         Flask backend
 
 ## Deploy to Vercel
 
+The repository uses `vercel.json` to install and build the React app from
+`frontend/`, while keeping the root-level `api/data.js` serverless endpoint.
+Do not set Vercel's Root Directory to `frontend`, because that would exclude
+the root-level API function from the deployment.
+
 Vercel deploys `api/data.js` as the `/api/data` serverless endpoint. Add these environment variables in **Vercel → Project Settings → Environment Variables** before deploying:
 
 ```env

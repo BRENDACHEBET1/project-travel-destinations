@@ -42,6 +42,20 @@ export function getSavedDestinations() {
   return request("/api/saved-destinations");
 }
 
+export function updateSavedDestination(savedId, details) {
+  return request(`/api/saved-destinations/${savedId}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(details),
+  });
+}
+
+export function deleteSavedDestination(savedId) {
+  return request(`/api/saved-destinations/${savedId}`, {
+    method: "DELETE",
+  });
+}
+
 async function authenticate(path, details) {
   const data = await request(path, {
     method: "POST",

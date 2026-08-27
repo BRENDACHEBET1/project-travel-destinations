@@ -1,6 +1,15 @@
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
+import { isAuthenticated, logout } from "../api/backend";
 
 function Navbar() {
+  const navigate = useNavigate();
+  const signedIn = isAuthenticated();
+
+  function handleLogout() {
+    logout();
+    navigate("/");
+  }
+
   return (
     <nav className="relative z-20 border-b border-white/15 bg-slate-950/90 text-white shadow-lg shadow-slate-950/20 backdrop-blur-md">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
@@ -77,6 +86,16 @@ function Navbar() {
           >
             Saved
           </NavLink>
+
+          {signedIn ? (
+            <button type="button" onClick={handleLogout} className="font-medium text-slate-300 transition hover:text-white">
+              Sign out
+            </button>
+          ) : (
+            <NavLink to="/login" className={({ isActive }) => `font-medium transition ${isActive ? "text-white" : "text-slate-300 hover:text-white"}`}>
+              Sign in
+            </NavLink>
+          )}
         </div>
       </div>
     </nav>

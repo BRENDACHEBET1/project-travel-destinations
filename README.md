@@ -74,6 +74,13 @@ The temporary save flow uses the seeded user with ID `1`. Set
 `VITE_DEMO_USER_ID` in `.env` to use another existing user ID. This is a
 development-only placeholder until authentication is added.
 
+## Authentication
+
+The API uses JWT authentication. Set a long, random `JWT_SECRET_KEY` in the
+backend environment (including Render) before starting the server. Users can
+register or sign in from the frontend; their saved destinations are then
+restricted to their own account.
+
 ## Scripts
 
 ```bash

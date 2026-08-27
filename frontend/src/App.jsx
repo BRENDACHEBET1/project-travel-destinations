@@ -5,6 +5,7 @@ import Home from "./pages/Home"
 import Destinations from "./pages/Destinations"
 import DestinationDetails from "./pages/DestinationDetails"
 import SavedDestinations from "./pages/SavedDestinations"
+import Login from "./pages/Login"
 import Footer from "./components/Footer";
 
 
@@ -22,6 +23,7 @@ function App() {
         />
         <Route path="/about" element={<About />} />
         <Route path="/saved-destinations" element={<SavedDestinations />} />
+        <Route path="/login" element={<Login />} />
       </Routes>
     </BrowserRouter>
     <Footer/>

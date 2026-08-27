@@ -28,6 +28,9 @@ class User(db.Model):
         unique=True,
         nullable=False
     )
+    # Existing Phase 2 users may not have a password yet, so this remains
+    # nullable until they reset or create one through the registration flow.
+    password_hash = db.Column(db.String(255), nullable=True)
     # One user can have many saved destinations
     saved_destinations = db.relationship(
         "SavedDestination",

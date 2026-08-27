@@ -2,6 +2,10 @@
 
 WorldExplorer is a React and Flask travel discovery app. Browse countries, filter by region, search by name, and open a country to see nearby tourist destinations and images. Create an account to save places with personal notes.
 
+## Live Demo
+Frontend: Vercel URL: https://project-travel-destinations.vercel.app/
+Backend API: Render URL:https://worldexplorer-backend.onrender.com
+
 ## Project brief
 
 ### Problem

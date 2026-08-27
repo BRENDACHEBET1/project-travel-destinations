@@ -2,9 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import NavBar from "../components/NavBar";
 import { getCountry, getTouristDestinations } from "../api/countries";
-import { savePlaceForUser } from "../api/backend";
-
-const DEMO_USER_ID = Number(import.meta.env.VITE_DEMO_USER_ID || 1);
+import { isAuthenticated, savePlace as saveDestination } from "../api/backend";
 
 function DestinationDetails() {
   const { country } = useParams();
@@ -19,11 +17,15 @@ function DestinationDetails() {
   const [saveError, setSaveError] = useState("");
 
   async function savePlace(place, placeId) {
+    if (!isAuthenticated()) {
+      navigate("/login", { state: { from: "/saved-destinations" } });
+      return;
+    }
     setSavingPlaceId(placeId);
     setSaveError("");
 
     try {
-      await savePlaceForUser(place, DEMO_USER_ID);
+      await saveDestination(place);
       setSavedPlaceIds((ids) => [...new Set([...ids, placeId])]);
     } catch (err) {
       setSaveError(err.message);
@@ -122,7 +124,7 @@ function DestinationDetails() {
 
           <h2 className="mt-10 text-2xl font-bold">Tourist Destinations</h2>
           <p className="mt-2 text-sm text-gray-600">
-            Save places to your temporary traveler profile.
+            Sign in to save places to your account.
           </p>
 
           {saveError && (

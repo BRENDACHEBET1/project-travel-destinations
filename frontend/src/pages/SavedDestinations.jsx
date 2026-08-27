@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 import NavBar from "../components/NavBar";
-import { getSavedDestinations } from "../api/backend";
-
-const DEMO_USER_ID = Number(import.meta.env.VITE_DEMO_USER_ID || 1);
+import { getSavedDestinations, isAuthenticated } from "../api/backend";
 
 function SavedDestinations() {
   const [savedDestinations, setSavedDestinations] = useState([]);
@@ -10,7 +8,12 @@ function SavedDestinations() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getSavedDestinations(DEMO_USER_ID)
+    if (!isAuthenticated()) {
+      setLoading(false);
+      return;
+    }
+
+    getSavedDestinations()
       .then(setSavedDestinations)
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
@@ -21,12 +24,15 @@ function SavedDestinations() {
       <NavBar />
       <main className="mx-auto max-w-6xl px-6 py-12">
         <h1 className="text-4xl font-bold text-gray-900">Saved Destinations</h1>
+        {!loading && !isAuthenticated() && (
+          <p className="mt-6 text-gray-600">Sign in to view your saved destinations.</p>
+        )}
         {loading && <p className="mt-6 text-gray-600">Loading saved destinations...</p>}
         {!loading && error && <p className="mt-6 text-red-600">{error}</p>}
-        {!loading && !error && savedDestinations.length === 0 && (
+        {!loading && isAuthenticated() && !error && savedDestinations.length === 0 && (
           <p className="mt-6 text-gray-600">You have not saved any destinations yet.</p>
         )}
-        {!loading && !error && savedDestinations.length > 0 && (
+        {!loading && isAuthenticated() && !error && savedDestinations.length > 0 && (
           <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {savedDestinations.map(({ id, destination }) => (
               <article key={id} className="overflow-hidden rounded-xl bg-white shadow">

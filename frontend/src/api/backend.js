@@ -1,4 +1,13 @@
 const apiBaseUrl = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
+const TOKEN_KEY = "worldexplorer_access_token";
+
+export function isAuthenticated() {
+  return Boolean(localStorage.getItem(TOKEN_KEY));
+}
+
+export function logout() {
+  localStorage.removeItem(TOKEN_KEY);
+}
 
 function errorMessage(body) {
   if (typeof body?.error === "string") return body.error;
@@ -7,9 +16,14 @@ function errorMessage(body) {
 }
 
 async function request(path, options = {}) {
+  const accessToken = localStorage.getItem(TOKEN_KEY);
   const response = await fetch(`${apiBaseUrl}${path}`, {
-    headers: { Accept: "application/json", ...options.headers },
     ...options,
+    headers: {
+      Accept: "application/json",
+      ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+      ...options.headers,
+    },
   });
 
   if (!response.ok) {
@@ -24,9 +38,26 @@ export function getDestinations() {
   return request("/api/destinations");
 }
 
-export async function getSavedDestinations(userId) {
-  const savedDestinations = await request("/api/saved-destinations");
-  return savedDestinations.filter((saved) => saved.user_id === userId);
+export function getSavedDestinations() {
+  return request("/api/saved-destinations");
+}
+
+async function authenticate(path, details) {
+  const data = await request(path, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(details),
+  });
+  localStorage.setItem(TOKEN_KEY, data.access_token);
+  return data.user;
+}
+
+export function register(details) {
+  return authenticate("/api/auth/register", details);
+}
+
+export function login(details) {
+  return authenticate("/api/auth/login", details);
 }
 
 function placePayload(place) {
@@ -50,7 +81,7 @@ function matchesPlace(destination, place) {
   );
 }
 
-export async function savePlaceForUser(place, userId) {
+export async function savePlace(place) {
   const destinations = await getDestinations();
   let destination = destinations.find((item) => matchesPlace(item, place));
 
@@ -62,7 +93,7 @@ export async function savePlaceForUser(place, userId) {
     });
   }
 
-  const savedDestinations = await getSavedDestinations(userId);
+  const savedDestinations = await getSavedDestinations();
   const existingSave = savedDestinations.find(
     (saved) => saved.destination_id === destination.id,
   );
@@ -71,6 +102,6 @@ export async function savePlaceForUser(place, userId) {
   return request("/api/saved-destinations", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ user_id: userId, destination_id: destination.id }),
+    body: JSON.stringify({ destination_id: destination.id }),
   });
 }

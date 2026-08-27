@@ -9,7 +9,7 @@ class User(db.Model):
     """
     Represents a user of the application.
 
-    Authentication will be added to this model in Phase 3.
+    Credentials are stored as password hashes and used by the authentication API.
     """
 
     __tablename__ = "users"
@@ -28,14 +28,18 @@ class User(db.Model):
         unique=True,
         nullable=False
     )
-    # Existing Phase 2 users may not have a password yet, so this remains
-    # nullable until they reset or create one through the registration flow.
+    # This remains nullable to support existing users created before
+    # password-based registration was introduced.
     password_hash = db.Column(db.String(255), nullable=True)
     # One user can have many saved destinations
     saved_destinations = db.relationship(
         "SavedDestination",
         back_populates="user",
         cascade="all, delete-orphan"
+    )
+    owned_destinations = db.relationship(
+        "Destination",
+        back_populates="owner"
     )
 
     def to_dict(self):
@@ -89,6 +93,20 @@ class Destination(db.Model):
         db.Float
     )
 
+    # The account that created this destination. It is nullable only so
+    # destinations created before ownership was added remain readable.
+    owner_id = db.Column(
+        db.Integer,
+        db.ForeignKey("users.id"),
+        nullable=True,
+        index=True
+    )
+
+    owner = db.relationship(
+        "User",
+        back_populates="owned_destinations"
+    )
+
     # One destination can be saved by many users
     saved_destinations = db.relationship(
         "SavedDestination",
@@ -112,9 +130,7 @@ class SavedDestination(db.Model):
     """
     Represents a destination saved by a user.
 
-    This is the user-owned resource that will become
-    especially important in Phase 3 when authentication
-    and authorization are added.
+    It belongs to a user and is protected by JWT-based authorization.
     """
 
     __tablename__ = "saved_destinations"

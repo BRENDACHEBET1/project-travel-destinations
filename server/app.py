@@ -6,7 +6,6 @@ from sqlalchemy import inspect, text
 from config import Config
 from models import db
 
-from routes.users import users_bp
 from routes.destinations import destinations_bp
 from routes.saved_destinations import saved_destinations_bp
 from routes.auth import auth_bp
@@ -35,7 +34,6 @@ def create_app():
     CORS(app)
 
     # Register API routes
-    app.register_blueprint(users_bp)
     app.register_blueprint(destinations_bp)
     app.register_blueprint(saved_destinations_bp)
     app.register_blueprint(auth_bp)
@@ -63,6 +61,16 @@ def create_app():
         if "password_hash" not in {column["name"] for column in columns}:
             db.session.execute(
                 text("ALTER TABLE users ADD COLUMN password_hash VARCHAR(255)")
+            )
+            db.session.commit()
+
+        destination_columns = inspect(db.engine).get_columns("destinations")
+        if "owner_id" not in {column["name"] for column in destination_columns}:
+            db.session.execute(
+                text(
+                    "ALTER TABLE destinations "
+                    "ADD COLUMN owner_id INTEGER REFERENCES users(id)"
+                )
             )
             db.session.commit()
 

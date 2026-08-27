@@ -1,4 +1,5 @@
 from flask import Blueprint, jsonify, request
+from flask_jwt_extended import jwt_required
 
 from models import db, Destination
 
@@ -52,6 +53,7 @@ def get_destination(destination_id):
 
 
 @destinations_bp.route("", methods=["POST"])
+@jwt_required()
 def create_destination():
     """
     POST /api/destinations

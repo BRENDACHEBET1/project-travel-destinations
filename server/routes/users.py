@@ -52,7 +52,7 @@ def create_user():
 
     Create a new user.
 
-    Authentication will be added in Phase 3.
+    Account registration with a password is handled by /api/auth/register.
     """
 
     data = request.get_json()

@@ -23,11 +23,7 @@ def get_saved_destinations():
     """
     GET /api/saved-destinations
 
-    Return saved destinations.
-
-    NOTE:
-    In Phase 2 this returns all records.
-    Phase 3 will restrict this to the logged-in user.
+    Return the saved destinations that belong to the authenticated user.
     """
 
     user_id = int(get_jwt_identity())
@@ -70,13 +66,7 @@ def create_saved_destination():
     """
     POST /api/saved-destinations
 
-    Save a destination for a user.
-
-    Phase 2:
-        user_id comes from the request.
-
-    Phase 3:
-        user_id will come from the authenticated user.
+    Save a destination for the authenticated user.
     """
 
     data = request.get_json()
@@ -149,10 +139,7 @@ def update_saved_destination(saved_id):
     """
     PATCH /api/saved-destinations/<id>
 
-    Update the user's saved destination.
-
-    In Phase 2 this does not yet verify ownership.
-    Phase 3 will add authorization.
+    Update a saved destination owned by the authenticated user.
     """
 
     saved = SavedDestination.query.filter_by(
@@ -200,10 +187,7 @@ def delete_saved_destination(saved_id):
     """
     DELETE /api/saved-destinations/<id>
 
-    Remove a saved destination.
-
-    Phase 3 will ensure that only the owner
-    can perform this action.
+    Remove a saved destination owned by the authenticated user.
     """
 
     saved = SavedDestination.query.filter_by(

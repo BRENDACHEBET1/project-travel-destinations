@@ -55,7 +55,7 @@ const Home = () => {
               around the world.
             </p>
 
-            <div className="mx-auto mt-8 flex max-w-2xl gap-3">
+            <div className="mx-auto mt-8 flex max-w-2xl flex-col gap-3 rounded-2xl bg-slate-950/35 p-3 shadow-2xl backdrop-blur-sm sm:flex-row">
               <SearchBar
                 searchTerm={searchTerm}
                 setSearchTerm={setSearchTerm}
@@ -63,7 +63,7 @@ const Home = () => {
 
               <button
                 onClick={handleSearch}
-                className="rounded-lg bg-white px-6 py-3 font-semibold text-blue-600 hover:bg-blue-50"
+                className="rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white shadow-lg transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-slate-900"
               >
                 Search
               </button>

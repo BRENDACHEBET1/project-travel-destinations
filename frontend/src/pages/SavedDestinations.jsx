@@ -76,7 +76,11 @@ function SavedDestinations() {
         {!loading && !isAuthenticated() && (
           <p className="mt-6 text-gray-600">Sign in to view your saved destinations.</p>
         )}
-        {loading && <p className="mt-6 text-gray-600">Loading saved destinations...</p>}
+        {loading && (
+          <div className="flex min-h-[55vh] items-center justify-center">
+            <p className="text-gray-600">Loading saved destinations...</p>
+          </div>
+        )}
         {!loading && error && <p className="mt-6 text-red-600">{error}</p>}
         {!loading && isAuthenticated() && !error && savedDestinations.length === 0 && (
           <p className="mt-6 text-gray-600">You have not saved any destinations yet.</p>

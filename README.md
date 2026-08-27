@@ -1,6 +1,6 @@
 # WorldExplorer
 
-WorldExplorer is a React travel discovery app. Browse countries, filter by region, search by name, and open a country to see nearby tourist destinations and images.
+WorldExplorer is a React and Flask travel discovery app. Browse countries, filter by region, search by name, and open a country to see nearby tourist destinations and images. Create an account to save places with personal notes.
 
 ## Features
 
@@ -9,6 +9,8 @@ WorldExplorer is a React travel discovery app. Browse countries, filter by regio
 - Country detail pages with capital and region information
 - Nearby tourist destinations from Geoapify
 - Destination images from Wikipedia and Wikimedia Commons
+- Account registration and sign-in with JWT authentication
+- Save destinations, add personal notes, edit notes, and remove saved destinations
 - Responsive Tailwind CSS interface
 
 ## Tech stack
@@ -16,6 +18,8 @@ WorldExplorer is a React travel discovery app. Browse countries, filter by regio
 - React and React Router
 - Vite
 - Tailwind CSS
+- Flask, SQLAlchemy, and PostgreSQL
+- JWT authentication
 - Vercel serverless functions
 
 ## APIs
@@ -38,6 +42,9 @@ WorldExplorer is a React travel discovery app. Browse countries, filter by regio
    ```env
    VITE_COUNTRIES_API_KEY=your_rest_countries_key
    VITE_GEOAPIFY_API_KEY=your_geoapify_key
+   # Leave unset to use a local Flask API through Vite's proxy.
+   # Set this when using a deployed backend.
+   VITE_API_URL=https://your-api.example.com
    ```
 
 3. Start the development server from `frontend/`:
@@ -46,12 +53,13 @@ WorldExplorer is a React travel discovery app. Browse countries, filter by regio
    npm run dev
    ```
 
-## Connect the frontend to the Flask API
+## Configure the Flask API
 
-1. Configure the database connection in the root `.env` file:
+1. Create `server/.env` and configure the database connection and JWT secret:
 
    ```env
    DATABASE_URL=your_postgresql_connection_url
+   JWT_SECRET_KEY=use_a_long_random_secret_value
    ```
 
 2. In a second terminal, start the Flask server:
@@ -63,23 +71,35 @@ WorldExplorer is a React travel discovery app. Browse countries, filter by regio
    python app.py
    ```
 
-   The API runs on `http://localhost:5000`. The Vite development server proxies
-   `/api/destinations` requests to it automatically.
+   The API runs on `http://localhost:5000`. When `VITE_API_URL` is not set,
+   the Vite development server proxies `/api/auth`, `/api/destinations`, and
+   `/api/saved-destinations` requests to it automatically.
 
-3. For a deployed frontend, set `VITE_API_URL` in the frontend deployment's
-   environment variables to the public URL of the deployed Flask API, for
-   example `https://your-api.example.com`. Rebuild the frontend after adding it.
+3. To use a deployed backend locally or from a deployed frontend, set
+   `VITE_API_URL` to its public URL. Restart Vite locally, or rebuild and
+   redeploy the frontend after changing the variable.
 
-The temporary save flow uses the seeded user with ID `1`. Set
-`VITE_DEMO_USER_ID` in `.env` to use another existing user ID. This is a
-development-only placeholder until authentication is added.
+## Deploy the Flask API to Render
+
+Create a Render **Web Service** from this repository and configure it with:
+
+```text
+Root Directory: server
+Build Command: pip install -r requirements.txt
+Start Command: gunicorn app:app
+```
+
+Add `DATABASE_URL` and `JWT_SECRET_KEY` as Render environment variables. The
+service will not start without `JWT_SECRET_KEY`. Once deployed, use the Render
+service URL as `VITE_API_URL` in the frontend environment and redeploy the
+frontend.
 
 ## Authentication
 
 The API uses JWT authentication. Set a long, random `JWT_SECRET_KEY` in the
 backend environment (including Render) before starting the server. Users can
-register or sign in from the frontend; their saved destinations are then
-restricted to their own account.
+register or sign in from the frontend; saved destinations and their notes are
+restricted to the signed-in account.
 
 ## Scripts
 

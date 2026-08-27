@@ -68,12 +68,12 @@ function DestinationDetails() {
 
   if (loading) {
     return (
-      <div>
+      <div className="min-h-screen bg-gray-50">
         <NavBar />
-        <div className="py-16 text-center">
+        <main className="flex min-h-[calc(100vh-8rem)] flex-col items-center justify-center px-6 text-center">
           <div className="mx-auto h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-blue-600" />
           <p className="mt-3 text-gray-600">Loading destination...</p>
-        </div>
+        </main>
       </div>
     );
   }

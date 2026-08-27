@@ -55,7 +55,7 @@ function Destinations() {
         </div>
 
         {loading && (
-          <div className="py-16 text-center">
+          <div className="flex min-h-[55vh] flex-col items-center justify-center text-center">
             <div className="mx-auto h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-blue-600" />
             <p className="mt-3 text-gray-600">Loading countries...</p>
           </div>

@@ -2,6 +2,38 @@
 
 WorldExplorer is a React and Flask travel discovery app. Browse countries, filter by region, search by name, and open a country to see nearby tourist destinations and images. Create an account to save places with personal notes.
 
+## Project brief
+
+### Problem
+
+Travel information is often scattered across several sites, making it harder
+for a traveller to move from broad country research to planning specific
+places to visit. WorldExplorer brings country discovery, nearby attractions,
+and a personal saved list into one focused experience.
+
+### Solution and value
+
+The application gives visitors a visual way to explore countries by name or
+region, then surfaces nearby tourist destinations with useful location details
+and images. Registered users can keep a private shortlist and add notes such
+as trip ideas, timings, or reminders. This turns browsing into a lightweight
+planning workflow without requiring users to manage a spreadsheet or multiple
+bookmarks.
+
+### Target users
+
+- Travellers researching potential countries and attractions
+- Students and casual explorers learning about places around the world
+- Anyone who wants a simple, personal list of destinations to revisit later
+
+### Core goals
+
+- Make country and destination discovery quick, visual, and responsive.
+- Provide search and regional filters that help users narrow a large dataset.
+- Protect personal saved destinations with account authentication and
+  record-level ownership rules.
+- Keep the frontend and deployed Flask API independently configurable.
+
 ## Features
 
 - Homepage travel-image slideshow and country search
@@ -99,7 +131,29 @@ frontend.
 The API uses JWT authentication. Set a long, random `JWT_SECRET_KEY` in the
 backend environment (including Render) before starting the server. Users can
 register or sign in from the frontend; saved destinations and their notes are
-restricted to the signed-in account.
+restricted to the signed-in account. New destinations are owned by their
+creator, and only that account can edit or delete them. The application does
+not expose public user-management routes.
+
+## API endpoints
+
+Protected endpoints require an `Authorization: Bearer <access_token>` header.
+
+| Method | Endpoint | Access | Purpose |
+| --- | --- | --- | --- |
+| `POST` | `/api/auth/register` | Public | Create an account and return an access token. |
+| `POST` | `/api/auth/login` | Public | Sign in and return an access token. |
+| `GET` | `/api/auth/me` | Authenticated | Return the current account. |
+| `GET` | `/api/destinations` | Public | List stored destinations. |
+| `GET` | `/api/destinations/:id` | Public | Return one destination. |
+| `POST` | `/api/destinations` | Authenticated | Create a destination owned by the current user. |
+| `PATCH` | `/api/destinations/:id` | Owner only | Update a destination. |
+| `DELETE` | `/api/destinations/:id` | Owner only | Delete a destination. |
+| `GET` | `/api/saved-destinations` | Authenticated | List the current user's saved destinations. |
+| `GET` | `/api/saved-destinations/:id` | Owner only | Return one saved destination. |
+| `POST` | `/api/saved-destinations` | Authenticated | Save a destination with an optional note. |
+| `PATCH` | `/api/saved-destinations/:id` | Owner only | Update a saved destination or its note. |
+| `DELETE` | `/api/saved-destinations/:id` | Owner only | Remove a saved destination. |
 
 ## Scripts
 

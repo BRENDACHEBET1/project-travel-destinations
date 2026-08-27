@@ -37,6 +37,10 @@ class User(db.Model):
         back_populates="user",
         cascade="all, delete-orphan"
     )
+    owned_destinations = db.relationship(
+        "Destination",
+        back_populates="owner"
+    )
 
     def to_dict(self):
 
@@ -89,6 +93,20 @@ class Destination(db.Model):
         db.Float
     )
 
+    # The account that created this destination. It is nullable only so
+    # destinations created before ownership was added remain readable.
+    owner_id = db.Column(
+        db.Integer,
+        db.ForeignKey("users.id"),
+        nullable=True,
+        index=True
+    )
+
+    owner = db.relationship(
+        "User",
+        back_populates="owned_destinations"
+    )
+
     # One destination can be saved by many users
     saved_destinations = db.relationship(
         "SavedDestination",
@@ -112,7 +130,6 @@ class SavedDestination(db.Model):
     """
     Represents a destination saved by a user.
 
-    This is the user-owned resource that will become
     It belongs to a user and is protected by JWT-based authorization.
     """
 

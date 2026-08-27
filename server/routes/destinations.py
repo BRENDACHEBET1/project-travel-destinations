@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from models import db, Destination
 
@@ -82,7 +82,8 @@ def create_destination():
         description=data.get("description"),
         image_url=data.get("image_url"),
         latitude=data.get("latitude"),
-        longitude=data.get("longitude")
+        longitude=data.get("longitude"),
+        owner_id=int(get_jwt_identity())
     )
 
     db.session.add(destination)
@@ -95,17 +96,18 @@ def create_destination():
     "/<int:destination_id>",
     methods=["PATCH"]
 )
+@jwt_required()
 def update_destination(destination_id):
     """
     PATCH /api/destinations/<id>
 
-    Update destination information.
+    Update a destination owned by the authenticated user.
     """
 
-    destination = db.session.get(
-        Destination,
-        destination_id
-    )
+    destination = Destination.query.filter_by(
+        id=destination_id,
+        owner_id=int(get_jwt_identity()),
+    ).first()
 
     if not destination:
         return jsonify({
@@ -138,17 +140,18 @@ def update_destination(destination_id):
     "/<int:destination_id>",
     methods=["DELETE"]
 )
+@jwt_required()
 def delete_destination(destination_id):
     """
     DELETE /api/destinations/<id>
 
-    Delete a destination.
+    Delete a destination owned by the authenticated user.
     """
 
-    destination = db.session.get(
-        Destination,
-        destination_id
-    )
+    destination = Destination.query.filter_by(
+        id=destination_id,
+        owner_id=int(get_jwt_identity()),
+    ).first()
 
     if not destination:
         return jsonify({

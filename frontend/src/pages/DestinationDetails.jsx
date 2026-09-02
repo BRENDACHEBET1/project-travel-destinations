@@ -26,6 +26,8 @@ function DestinationDetails() {
 
     try {
       await saveDestination(place);
+      // Redirect after the destination is successfully saved
+      navigate("/saved-destinations");
       setSavedPlaceIds((ids) => [...new Set([...ids, placeId])]);
     } catch (err) {
       setSaveError(err.message);

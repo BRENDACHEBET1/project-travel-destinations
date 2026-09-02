@@ -1,12 +1,25 @@
 const apiBaseUrl = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
 const TOKEN_KEY = "worldexplorer_access_token";
+const USER_KEY = "worldexplorer_user";
 
 export function isAuthenticated() {
   return Boolean(localStorage.getItem(TOKEN_KEY));
 }
 
+export function getCurrentUser() {
+  const storedUser = localStorage.getItem(USER_KEY);
+
+  try {
+    return storedUser ? JSON.parse(storedUser) : null;
+  } catch {
+    localStorage.removeItem(USER_KEY);
+    return null;
+  }
+}
+
 export function logout() {
   localStorage.removeItem(TOKEN_KEY);
+  localStorage.removeItem(USER_KEY);
 }
 
 function errorMessage(body) {
@@ -63,6 +76,7 @@ async function authenticate(path, details) {
     body: JSON.stringify(details),
   });
   localStorage.setItem(TOKEN_KEY, data.access_token);
+  localStorage.setItem(USER_KEY, JSON.stringify(data.user));
   return data.user;
 }
 

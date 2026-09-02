@@ -1,9 +1,10 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import { isAuthenticated, logout } from "../api/backend";
+import { getCurrentUser, isAuthenticated, logout } from "../api/backend";
 
 function Navbar() {
   const navigate = useNavigate();
   const signedIn = isAuthenticated();
+  const currentUser = getCurrentUser();
 
   function handleLogout() {
     logout();
@@ -11,7 +12,7 @@ function Navbar() {
   }
 
   return (
-    <nav className="relative z-20 border-b border-white/15 bg-slate-950/90 text-white shadow-lg shadow-slate-950/20 backdrop-blur-md">
+    <nav className="relative z-20 border-b border-sky-200/10 bg-slate-950/95 text-white shadow-xl shadow-slate-950/30 backdrop-blur-md">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 sm:py-4">
         {/* Logo */}
         <Link
@@ -36,14 +37,14 @@ function Navbar() {
         </Link>
 
         {/* Navigation */}
-        <div className="hidden items-center gap-6 md:flex">
+        <div className="hidden items-center gap-2 rounded-full border border-white/10 bg-white/5 p-1.5 md:flex">
           <NavLink
             to="/"
             className={({ isActive }) =>
-              `font-medium transition ${
+              `rounded-full px-3 py-2 text-sm font-medium transition ${
                 isActive
-                  ? "text-white"
-                  : "text-slate-300 hover:text-white"
+                  ? "bg-sky-400/20 text-white shadow-sm"
+                  : "text-slate-300 hover:bg-white/10 hover:text-white"
               }`
             }
           >
@@ -53,10 +54,10 @@ function Navbar() {
           <NavLink
             to="/destinations"
             className={({ isActive }) =>
-              `font-medium transition ${
+              `rounded-full px-3 py-2 text-sm font-medium transition ${
                 isActive
-                  ? "text-white"
-                  : "text-slate-300 hover:text-white"
+                  ? "bg-sky-400/20 text-white shadow-sm"
+                  : "text-slate-300 hover:bg-white/10 hover:text-white"
               }`
             }
           >
@@ -66,10 +67,10 @@ function Navbar() {
           <NavLink
             to="/about"
             className={({ isActive }) =>
-              `font-medium transition ${
+              `rounded-full px-3 py-2 text-sm font-medium transition ${
                 isActive
-                  ? "text-white"
-                  : "text-slate-300 hover:text-white"
+                  ? "bg-sky-400/20 text-white shadow-sm"
+                  : "text-slate-300 hover:bg-white/10 hover:text-white"
               }`
             }
           >
@@ -79,8 +80,8 @@ function Navbar() {
           <NavLink
             to="/saved-destinations"
             className={({ isActive }) =>
-              `font-medium transition ${
-                isActive ? "text-white" : "text-slate-300 hover:text-white"
+              `rounded-full px-3 py-2 text-sm font-medium transition ${
+                isActive ? "bg-sky-400/20 text-white shadow-sm" : "text-slate-300 hover:bg-white/10 hover:text-white"
               }`
             }
           >
@@ -88,11 +89,24 @@ function Navbar() {
           </NavLink>
 
           {signedIn ? (
-            <button type="button" onClick={handleLogout} className="font-medium text-slate-300 transition hover:text-white">
-              Sign out
-            </button>
+            <div className="ml-2 flex items-center gap-2 border-l border-white/10 pl-3">
+              <span className="flex max-w-40 items-center gap-2 rounded-full bg-sky-400/15 px-3 py-2 text-sm font-semibold text-sky-100" title={currentUser?.username}>
+                <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4 shrink-0 fill-none stroke-current stroke-2">
+                  <circle cx="12" cy="8" r="3" />
+                  <path d="M5 21a7 7 0 0 1 14 0" />
+                </svg>
+                <span className="truncate">{currentUser?.username || "Signed in"}</span>
+              </span>
+              <button type="button" onClick={handleLogout} className="rounded-full px-3 py-2 text-sm font-medium text-slate-300 transition hover:bg-red-400/10 hover:text-red-200">
+                Sign out
+              </button>
+            </div>
           ) : (
-            <NavLink to="/login" className={({ isActive }) => `font-medium transition ${isActive ? "text-white" : "text-slate-300 hover:text-white"}`}>
+            <NavLink to="/login" className={({ isActive }) => `ml-2 flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition ${isActive ? "border-sky-300 bg-sky-300 text-slate-950" : "border-sky-300/60 bg-sky-400/10 text-sky-100 hover:border-sky-200 hover:bg-sky-300 hover:text-slate-950"}`}>
+              <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5 fill-none stroke-current stroke-2">
+                <circle cx="12" cy="8" r="3" />
+                <path d="M5 21a7 7 0 0 1 14 0" />
+              </svg>
               Sign in
             </NavLink>
           )}
@@ -123,11 +137,20 @@ function Navbar() {
                 Saved
               </NavLink>
               {signedIn ? (
-                <button type="button" onClick={handleLogout} className="rounded-lg px-3 py-3 text-left font-medium text-slate-300 transition hover:bg-white/10 hover:text-white">
-                  Sign out
-                </button>
+                <>
+                  <span className="truncate px-3 pt-3 text-sm font-medium text-sky-200">
+                    {currentUser?.username || "Signed in"}
+                  </span>
+                  <button type="button" onClick={handleLogout} className="rounded-lg px-3 py-3 text-left font-medium text-slate-300 transition hover:bg-white/10 hover:text-white">
+                    Sign out
+                  </button>
+                </>
               ) : (
-                <NavLink to="/login" className={({ isActive }) => `rounded-lg px-3 py-3 font-medium transition ${isActive ? "bg-white/10 text-white" : "text-slate-300 hover:bg-white/10 hover:text-white"}`}>
+                <NavLink to="/login" className={({ isActive }) => `flex items-center gap-2 rounded-lg bg-sky-400/10 px-3 py-3 font-medium text-sky-100 transition ${isActive ? "bg-sky-300 text-slate-950" : "hover:bg-sky-300 hover:text-slate-950"}`}>
+                  <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5 fill-none stroke-current stroke-2">
+                    <circle cx="12" cy="8" r="3" />
+                    <path d="M5 21a7 7 0 0 1 14 0" />
+                  </svg>
                   Sign in
                 </NavLink>
               )}

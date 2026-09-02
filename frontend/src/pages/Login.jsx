@@ -21,7 +21,11 @@ function Login() {
     setSubmitting(true);
     try {
       await (isRegistering ? register(form) : login(form));
-      navigate(location.state?.from || "/saved-destinations");
+      const { from, pendingPlace, pendingPlaceId } = location.state || {};
+      navigate(from || "/saved-destinations", {
+        replace: true,
+        state: pendingPlace ? { pendingPlace, pendingPlaceId } : null,
+      });
     } catch (err) {
       setError(err.message);
     } finally {

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useLocation, useParams, useNavigate } from "react-router-dom";
 import NavBar from "../components/NavBar";
 import { getCountry, getTouristDestinations } from "../api/countries";
 import { isAuthenticated, savePlace as saveDestination } from "../api/backend";
@@ -7,6 +7,7 @@ import { isAuthenticated, savePlace as saveDestination } from "../api/backend";
 function DestinationDetails() {
   const { country } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [selectedCountry, setSelectedCountry] = useState(null);
   const [places, setPlaces] = useState([]);
@@ -18,7 +19,13 @@ function DestinationDetails() {
 
   async function savePlace(place, placeId) {
     if (!isAuthenticated()) {
-      navigate("/login", { state: { from: "/saved-destinations" } });
+      navigate("/login", {
+        state: {
+          from: location.pathname,
+          pendingPlace: place,
+          pendingPlaceId: placeId,
+        },
+      });
       return;
     }
     setSavingPlaceId(placeId);
@@ -67,6 +74,39 @@ function DestinationDetails() {
 
     loadData();
   }, [country]);
+
+  useEffect(() => {
+    const { pendingPlace, pendingPlaceId } = location.state || {};
+
+    if (!pendingPlace || !pendingPlaceId || loading || !isAuthenticated()) {
+      return;
+    }
+
+    let cancelled = false;
+
+    async function savePendingPlace() {
+      setSavingPlaceId(pendingPlaceId);
+      setSaveError("");
+      navigate(location.pathname, { replace: true, state: null });
+
+      try {
+        await saveDestination(pendingPlace);
+        if (!cancelled) {
+          setSavedPlaceIds((ids) => [...new Set([...ids, pendingPlaceId])]);
+        }
+      } catch (err) {
+        if (!cancelled) setSaveError(err.message);
+      } finally {
+        if (!cancelled) setSavingPlaceId("");
+      }
+    }
+
+    savePendingPlace();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [loading, location.pathname, location.state, navigate]);
 
   if (loading) {
     return (
